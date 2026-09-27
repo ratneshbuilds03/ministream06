@@ -15,7 +15,7 @@ services:
       redis:
         condition: service_started
     # volumes:
-    #   - ./main-api:/app
+    #   - ./main-app:/app
     networks:
       - ministream-network
 

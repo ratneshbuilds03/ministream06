@@ -7,11 +7,11 @@ on:
     branches: [main, master]
 
 jobs:
-  test-main-api:
+  test-main-app:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./main-api
+        working-directory: ./main-app
 
     services:
       mysql:
@@ -48,33 +48,33 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL:
-          MONGODB_URL:
-          MONGODB_DB:
-          REDIS_URL:
-          SECRET_KEY:
-          ALGORITHM:
+          DATABASE_URL: mysql+pymysql://root:testpassword@127.0.0.1:3306/ministream_test_db
+          MONGODB_URL: mongodb://localhost:27017
+          MONGODB_DB: ministream_db
+          REDIS_URL: redis://localhost:6379
+          SECRET_KEY: test-secret-key
+          ALGORITHM: HS256
           ACCESS_TOKEN_EXPIRE_MINUTES: "60"
-          AWS_ACCESS_KEY_ID:
+          AWS_ACCESS_KEY_ID: fake-access-key
           AWS_SECRET_ACCESS_KEY: fake-aws-secret
           AWS_BUCKET_NAME: fake-bucket
           AWS_REGION: ap-south-1
           NOTIFICATION_SERVICE_URL: http://localhost:5001
-        run: pip install -r requirements.txt
+        run: pytest
 
   build-images:
     runs-on: ubuntu-latest
-    needs: test-main-api
+    needs: test-main-app
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build main-api image
-        run: docker build -t ministream-main-api  ./main-api
+      - name: Build main-app image
+        run: docker build -t ministream-main-app  ./main-app
 
       - name: Build notification-service image
         run: docker build -t ministream-notification ./notification-service
 
       - name: Build complete stack
-        run: docker-compose build
+        run: docker compose build
