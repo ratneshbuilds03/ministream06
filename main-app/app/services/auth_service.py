@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from jose import jwt
 from datetime import datetime , timedelta
@@ -61,8 +62,17 @@ def signup_user(db:Session,user_data:UserCreate):
     db.refresh(new_user)
     return new_user , None
 
-def login_user(db:Session, email:str, password:str):
-    user = db.query(User).filter(User.email==email).first()
+def login_user(db:Session, username_or_email:str, password:str):
+    identifier = (username_or_email or "").strip()
+    normalized_identifier = identifier.lower()
+
+    user = db.query(User).filter(
+        or_(
+            User.email.ilike(identifier),
+            User.username == normalized_identifier,
+        )
+    ).first()
+
     if not user or not verify_password(password,user.password_hash):
         return None, "Invalid email or password"
     

@@ -74,6 +74,15 @@ class TestLogin:
         assert data["token_type"] == "bearer"
         assert "user" in data
 
+    def test_login_success_with_username_identifier(self, client, creator_user):
+        response = client.post("/auth/login", data={
+            "username": "testcreator",
+            "password": "test123"
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["user"]["username"] == "testcreator"
+
     def test_login_wrong_password(self, client, creator_user):
         response = client.post("/auth/login", data={
             "username": "creator@test.com",
