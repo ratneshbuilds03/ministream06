@@ -1,235 +1,228 @@
-# Cartify Backend 🛒
+# 🎬 MiniStream — Content Streaming Platform
 
-A production-style e-commerce backend built with **FastAPI**, **MySQL**, **MongoDB**, **JWT authentication**, and **Docker**.
+A production-style content streaming platform backend built with **FastAPI, Flask, MySQL, MongoDB, Redis, AWS S3, Docker, and GitHub Actions**.
 
-The backend provides authentication, product management, cart management, checkout, and order functionality for the Cartify frontend.
+MiniStream uses a microservices architecture where the FastAPI application handles the main platform APIs and a separate Flask service handles notifications.
 
-## 🚀 Live API
-
-**Backend:**
-https://cart-system-ylj0.onrender.com
-
-**Swagger / OpenAPI Documentation:**
-https://cart-system-ylj0.onrender.com/docs
+## 🚀 Live Demo
 
 **Frontend:**
-https://cartify-pi-nine.vercel.app/
+https://novus-one-eta.vercel.app
 
----
+**Main API:**
+https://ministream-main-app.onrender.com
+
+**API Documentation:**
+https://ministream-main-app.onrender.com/docs
+
+**Notification Service:**
+https://ministream-notification.onrender.com
+
+## 🔗 Repositories
+
+**Backend:**
+https://github.com/ratneshbuilds03/ministream06
+
+**Frontend:**
+https://github.com/ratneshbuilds03/ministream-frontend
+
+## 🏗️ Microservices Architecture
+
+```text
+Client
+   │
+   ▼
+FastAPI Main API
+   │
+   ├── MySQL
+   │      └── Users, Content, Subscriptions
+   │
+   ├── MongoDB
+   │      └── Comments, Analytics
+   │
+   ├── Redis
+   │      └── Trending, Views, Likes, Sessions, Cache
+   │
+   └── AWS S3
+          └── Videos, Images, Thumbnails
+
+FastAPI Main API
+   │
+   ▼
+Flask Notification Service
+   └── Subscriber Notifications
+```
 
 ## ✨ Features
 
 * User registration and login
 * JWT-based authentication
-* Protected API endpoints
-* Product management
-* Product image support
-* MongoDB product storage
-* Shopping cart management
-* Checkout and order placement
-* MySQL user and order data
-* MongoDB product and cart data
-* CORS configuration for production frontend
-* API validation using Pydantic
-* Dockerized application
-* Production deployment on Render
-* Interactive Swagger API documentation
-
----
+* Role-based access for creators and viewers
+* Creator content upload
+* Video, image, and article content support
+* AWS S3 file storage
+* Presigned URLs for content access
+* Content publishing workflow
+* Content view tracking
+* Like/unlike functionality
+* Real-time trending content
+* Personalized content feed
+* Creator subscriptions
+* Content search
+* Creator search
+* Category-based search
+* Nested comments and replies
+* Comment editing
+* Soft deletion of comments
+* Comment likes
+* Creator and platform analytics
+* Redis caching
+* Notification microservice
+* Dockerized services
+* Automated backend testing
+* GitHub Actions CI pipeline
 
 ## 🛠️ Tech Stack
 
-| Technology               | Purpose                |
-| ------------------------ | ---------------------- |
-| FastAPI                  | Backend REST API       |
-| Python                   | Backend development    |
-| MySQL                    | Users and orders       |
-| MongoDB                  | Products and cart data |
-| SQLAlchemy               | MySQL ORM              |
-| PyMongo / MongoDB Driver | MongoDB integration    |
-| Pydantic                 | Data validation        |
-| JWT                      | Authentication         |
-| Docker                   | Containerization       |
-| Render                   | Backend deployment     |
-| Vercel                   | Frontend deployment    |
+* **Python**
+* **FastAPI**
+* **Flask**
+* **SQLAlchemy**
+* **MySQL**
+* **MongoDB**
+* **Redis**
+* **AWS S3**
+* **JWT**
+* **bcrypt**
+* **Docker**
+* **Docker Compose**
+* **GitHub Actions**
+* **Render**
+* **Vercel**
 
----
+## 🗄️ Database Architecture
 
-## 🏗️ Architecture
+MiniStream uses different storage technologies based on the type of data being handled.
 
-Cartify uses a **dual-database architecture**.
-
-### MySQL
-
-Used for relational data such as:
-
-* Users
-* Orders
-* Authentication-related data
-
-### MongoDB
-
-Used for flexible e-commerce data such as:
-
-* Products
-* Shopping cart data
-
-This separation allows relational and document-based data to be handled according to their respective use cases.
-
----
+| Data             | Technology | Purpose                            |
+| ---------------- | ---------- | ---------------------------------- |
+| Users            | MySQL      | Relational user data               |
+| Content metadata | MySQL      | Structured content information     |
+| Subscriptions    | MySQL      | Creator subscription relationships |
+| Comments         | MongoDB    | Flexible nested comment data       |
+| Analytics        | MongoDB    | Analytics and event-oriented data  |
+| Trending         | Redis      | Fast ranking operations            |
+| Views            | Redis      | View tracking                      |
+| Likes            | Redis      | Fast like/unlike operations        |
+| Sessions / Cache | Redis      | Temporary and cached data          |
+| Videos / Images  | AWS S3     | File and media storage             |
 
 ## 🔐 Authentication
 
-Cartify uses **JWT-based authentication**.
+MiniStream uses JWT-based authentication.
 
-### Authentication Flow
-
-```text
-User
- │
- ├── Signup
- │
- ▼
-FastAPI
- │
- ├── Validate User Data
- ├── Create User
- │
- ▼
-MySQL
-```
-
-For login:
-
-```text
-User Login
-    │
-    ▼
-FastAPI
-    │
-    ├── Validate Credentials
-    │
-    ▼
-JWT Token
-    │
-    ▼
-Authenticated Requests
-```
-
-Protected endpoints require the JWT token through the `Authorization` header.
-
----
-
-## 📦 Product API
-
-Products are stored in MongoDB.
-
-### Get Products
+### Signup
 
 ```http
-GET /products/
+POST /auth/signup
 ```
 
-Returns the available product catalog.
+Creates a new user account.
 
-### Create Product
+### Login
 
 ```http
-POST /products/
+POST /auth/login
 ```
 
-Example:
+Authenticates the user and returns an access token.
 
-```json
-{
-  "name": "Canvas Backpack",
-  "description": "Durable everyday backpack",
-  "price": 2499,
-  "category": "Bags",
-  "stock": 20,
-  "image": "https://example.com/image.jpg"
-}
-```
-
-### Update Product
+### Current User
 
 ```http
-PUT /products/{product_id}
+GET /auth/me
 ```
 
-### Product Data
+Returns the authenticated user's profile.
 
-Products support:
+### Public Profile
 
-* Name
-* Description
-* Price
-* Category
-* Stock
-* Image URL
-
----
-
-## 🛒 Cart & Order Flow
-
-The application supports the complete shopping flow:
-
-```text
-Browse Products
-      ↓
-Add Product to Cart
-      ↓
-View Cart
-      ↓
-Checkout
-      ↓
-Place Order
-      ↓
-Order Created
+```http
+GET /auth/users/{username}
 ```
 
-The frontend communicates with the backend through REST APIs during each stage.
+Returns a user's public profile.
 
----
+## 📡 API Endpoints
 
-## 📚 API Documentation
+### Authentication
 
-FastAPI automatically provides interactive API documentation.
+| Method | Endpoint                 | Auth | Description           |
+| ------ | ------------------------ | ---- | --------------------- |
+| POST   | `/auth/signup`           | No   | Register a user       |
+| POST   | `/auth/login`            | No   | Login and receive JWT |
+| GET    | `/auth/me`               | Yes  | Get current user      |
+| PUT    | `/auth/me`               | Yes  | Update profile        |
+| GET    | `/auth/users/{username}` | No   | Get public profile    |
 
-### Swagger UI
+### Content
 
-https://cart-system-ylj0.onrender.com/docs
+| Method | Endpoint                | Auth    | Description                |
+| ------ | ----------------------- | ------- | -------------------------- |
+| POST   | `/content/upload`       | Creator | Upload content             |
+| GET    | `/content/`             | No      | List published content     |
+| GET    | `/content/{id}`         | No      | Get content and track view |
+| PUT    | `/content/{id}`         | Creator | Update own content         |
+| DELETE | `/content/{id}`         | Creator | Delete content             |
+| POST   | `/content/{id}/publish` | Creator | Publish content            |
+| POST   | `/content/{id}/like`    | Yes     | Like/unlike content        |
+| GET    | `/content/feed/me`      | Yes     | Get personalized feed      |
 
-### OpenAPI
+### Subscriptions
 
-https://cart-system-ylj0.onrender.com/openapi.json
+| Method | Endpoint                        | Auth | Description        |
+| ------ | ------------------------------- | ---- | ------------------ |
+| POST   | `/subscriptions/follow/{id}`    | Yes  | Follow creator     |
+| DELETE | `/subscriptions/unfollow/{id}`  | Yes  | Unfollow creator   |
+| GET    | `/subscriptions/followers/{id}` | No   | Get followers      |
+| GET    | `/subscriptions/following/{id}` | No   | Get following list |
+| GET    | `/subscriptions/check/{id}`     | Yes  | Check subscription |
 
-Swagger can be used to:
+### Trending & Search
 
-* Explore API endpoints
-* View request schemas
-* Test endpoints
-* Test authentication
-* Inspect API responses
+| Method | Endpoint                   | Auth | Description           |
+| ------ | -------------------------- | ---- | --------------------- |
+| GET    | `/trending/`               | No   | Get trending content  |
+| GET    | `/trending/category/{cat}` | No   | Get category trending |
+| GET    | `/search/content?q=...`    | No   | Search content        |
+| GET    | `/search/creators?q=...`   | No   | Search creators       |
+| GET    | `/search/categories`       | No   | List categories       |
 
----
+### Comments
+
+| Method | Endpoint                 | Auth | Description         |
+| ------ | ------------------------ | ---- | ------------------- |
+| GET    | `/comments/content/{id}` | No   | Get comments        |
+| POST   | `/comments/content/{id}` | Yes  | Add comment/reply   |
+| PUT    | `/comments/{id}`         | Yes  | Edit own comment    |
+| DELETE | `/comments/{id}`         | Yes  | Soft delete comment |
+| POST   | `/comments/{id}/like`    | Yes  | Like/unlike comment |
 
 ## ⚙️ Local Setup
 
-### Clone Repository
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ratneshbuilds03/fastapi-project-cart03.git
-cd fastapi-project-cart03
+git clone https://github.com/ratneshbuilds03/ministream06.git
+cd ministream06
 ```
 
-### Create Virtual Environment
+### 2. Main API setup
 
-```bash
+```powershell
+cd main-app
 python -m venv venv
 ```
-
-### Activate Virtual Environment
 
 Windows:
 
@@ -237,52 +230,34 @@ Windows:
 venv\Scripts\activate
 ```
 
-Linux / macOS:
+Install dependencies:
 
-```bash
-source venv/bin/activate
-```
-
-### Install Dependencies
-
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
----
+### 3. Notification Service
 
-## 🔑 Environment Variables
+Open another terminal:
 
-Create a `.env` file and configure the required environment variables.
-
-```env
-DATABASE_URL=your_mysql_database_url
-
-MONGODB_URL=your_mongodb_connection_string
-
-MONGODB_DB=cart_db
-
-SECRET_KEY=your_secret_key
+```powershell
+cd notification-service
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-### Environment Variable Description
+Start the notification service:
 
-| Variable       | Description               |
-| -------------- | ------------------------- |
-| `DATABASE_URL` | MySQL database connection |
-| `MONGODB_URL`  | MongoDB connection string |
-| `MONGODB_DB`   | MongoDB database name     |
-| `SECRET_KEY`   | JWT signing secret        |
+```powershell
+python app/main.py
+```
 
-> Never commit `.env` files or database credentials to GitHub.
+### 4. Start the Main API
 
----
+From the `main-app` directory:
 
-## ▶️ Run Locally
-
-Start the FastAPI development server:
-
-```bash
+```powershell
 uvicorn app.main:app --reload
 ```
 
@@ -298,172 +273,211 @@ Swagger documentation:
 http://127.0.0.1:8000/docs
 ```
 
----
+## 🐳 Docker Setup
 
-## 🐳 Docker
+MiniStream includes Docker configuration for the main application and supporting services.
 
-The backend is Dockerized for consistent deployment.
-
-### Build Image
+Build and start the services with:
 
 ```bash
-docker build -t cart-system .
+docker compose up --build
 ```
 
-### Run Container
+The Docker environment includes the main application, notification service, MySQL, MongoDB, and Redis services according to the project configuration.
 
-```bash
-docker run -p 8000:8000 cart-system
+## 🧪 Testing
+
+The backend includes automated tests covering authentication, content, search, subscriptions, and related application functionality.
+
+Run the test suite from `main-app`:
+
+```powershell
+cd main-app
+pytest
 ```
 
-For local development, the project can also be used with Docker Compose when the required database services are configured.
+## 💡 Key Technical Decisions
 
----
+### 1. Microservices Architecture
 
-## 🌐 Production Deployment
+The main platform API is built with FastAPI while notifications are handled by a separate Flask service.
 
-The backend is deployed using **Render**.
+This keeps notification functionality separated from the core application.
 
-### Production API
+### 2. Redis Data Structures
 
-https://cart-system-ylj0.onrender.com
+Redis is used for high-speed operations such as:
 
-### Health Check
+* Trending content
+* View tracking
+* Likes
+* Sessions
+* Feed caching
 
-```http
-GET /health
+### 3. Multiple Database Technologies
+
+MySQL handles structured relational data while MongoDB handles flexible document-oriented data. Redis is used for fast temporary and frequently accessed data.
+
+### 4. Presigned S3 URLs
+
+Media files are stored in AWS S3 and accessed through temporary presigned URLs instead of exposing direct storage access.
+
+### 5. Role-Based Access
+
+Different application roles provide different capabilities, including creator-specific content operations.
+
+## 🔄 Content Flow
+
+```text
+Creator
+   │
+   ▼
+Upload Content
+   │
+   ▼
+AWS S3 Storage
+   │
+   ▼
+Content Metadata
+   │
+   ▼
+Publish
+   │
+   ├── Subscriber Notification
+   │
+   └── Content Available
+             │
+             ▼
+          View / Like
+             │
+             ▼
+        Redis Tracking
 ```
 
-The production deployment connects to:
+## 🔄 Development & Deployment
 
-* Aiven MySQL
-* MongoDB Atlas
+```text
+Developer
+    │
+    ▼
+GitHub Repository
+    │
+    ▼
+GitHub Actions
+    │
+    ├── Install Dependencies
+    ├── Run Tests
+    └── CI Validation
+    │
+    ▼
+Docker
+    │
+    ▼
+Deployment
+    │
+    ├── Render Main API
+    └── Render Notification Service
+```
 
-The application is containerized using Docker before deployment.
+## 🌐 Deployment
 
----
+The MiniStream backend is deployed using **Render**.
 
-## 🔗 Frontend
+### Main API
 
-Cartify's frontend is deployed separately using Vercel.
+https://ministream-main-app.onrender.com
 
-**Frontend:**
-https://cartify-pi-nine.vercel.app/
+### API Documentation
 
-**Frontend Repository:**
-https://github.com/ratneshbuilds03/cartify-frontend-2s
+https://ministream-main-app.onrender.com/docs
 
-The backend is configured with CORS to allow the production frontend to communicate with the API.
+### Notification Service
 
----
+https://ministream-notification.onrender.com
+
+The frontend is deployed separately using Vercel.
+
+### Frontend
+
+https://novus-one-eta.vercel.app
+
+## 🔑 Environment Variables
+
+The application uses environment variables for database connections, authentication, AWS services, Redis, and notification service configuration.
+
+Example:
+
+```env
+DATABASE_URL=your_mysql_database_url
+MONGODB_URL=your_mongodb_connection_string
+MONGODB_DB=ministream_db
+REDIS_URL=your_redis_url
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_BUCKET_NAME=your_bucket_name
+AWS_REGION=ap-south-1
+
+NOTIFICATION_SERVICE_URL=http://localhost:5001
+```
+
+**Never commit real credentials, AWS keys, database passwords, or secret keys to GitHub.**
 
 ## 📁 Project Structure
 
 ```text
-fastapi-project-cart03/
+ministream06/
 │
-├── app/
-│   ├── main.py
-│   ├── models/
-│   ├── routes/
-│   ├── schemas/
-│   ├── services/
-│   └── database/
+├── main-app/
+│   ├── app/
+│   │   ├── routes/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   ├── models/
+│   │   └── main.py
+│   │
+│   ├── tests/
+│   ├── requirements.txt
+│   └── pytest.ini
 │
-├── tests/
+├── notification-service/
+│   ├── app/
+│   ├── requirements.txt
+│   └── Dockerfile
 │
-├── dockerfile
 ├── docker-compose.yml
-├── requirements.txt
-├── .env
+├── Dockerfile
+├── .dockerignore
 └── README.md
 ```
 
----
+## 📈 What I Learned
 
-## 🔄 Application Flow
-
-```text
-                ┌─────────────────────┐
-                │   Cartify Frontend  │
-                │       Vercel        │
-                └──────────┬──────────┘
-                           │
-                           │ REST API
-                           ▼
-                ┌─────────────────────┐
-                │    FastAPI Backend  │
-                │       Render        │
-                └──────────┬──────────┘
-                           │
-              ┌────────────┴────────────┐
-              │                         │
-              ▼                         ▼
-       ┌─────────────┐           ┌─────────────┐
-       │    MySQL    │           │   MongoDB   │
-       │    Aiven    │           │    Atlas    │
-       └─────────────┘           └─────────────┘
-```
-
----
-
-## 🧪 Testing
-
-The project includes backend tests for important application functionality.
-
-Testing can be executed using:
-
-```bash
-pytest
-```
-
-The test suite covers areas such as:
-
-* Authentication
-* Products
-* Cart functionality
-* Orders
-* API behavior
-
----
-
-## 🔒 Security
-
-Security-related implementation includes:
-
-* JWT authentication
-* Password hashing
-* Protected endpoints
-* Pydantic request validation
-* CORS configuration
-* Environment-based secrets
-* Database credentials kept outside source code
-
-Production credentials and secrets should never be committed to the repository.
-
----
+* Designing microservices with FastAPI and Flask
+* Working with multiple databases in one application
+* Using Redis data structures for high-speed operations
+* Implementing JWT authentication and role-based access
+* Integrating AWS S3 for media storage
+* Generating presigned URLs for private files
+* Building REST APIs with FastAPI
+* Writing automated backend tests with Pytest
+* Containerizing applications with Docker
+* Using GitHub Actions for CI
+* Deploying backend services to a cloud platform
 
 ## 🔮 Future Improvements
 
-Potential future improvements include:
-
-* Payment gateway integration
+* Video streaming optimization
+* Advanced recommendation system
+* More detailed creator analytics
+* Improved notification delivery
+* Content moderation tools
 * Admin dashboard
-* Product search and filtering
-* Product reviews and ratings
-* Order history interface
-* Inventory management
-* Improved user account management
-* Email/order notifications
-
----
-
-## 🔗 Repository
-
-**GitHub:**
-https://github.com/ratneshbuilds03/fastapi-project-cart03
-
----
+* Advanced search and filtering
+* Automated production monitoring
 
 ## 📄 License
 
